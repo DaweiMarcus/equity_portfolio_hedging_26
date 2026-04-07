@@ -6,19 +6,82 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Analyze characteristics and risks of an equity portfolio, and test potential hedging strategies. Personal use only.
 
-Build a deployable system called equity-portfolio-hedge for computing portfolio beta, sizing derivative hedges, and backtesting. Here's the structure I want:
-* src/data/ — market data fetching (yfinance) and portfolio CSV loader. 
-    * in this csv loader, it has headers of Symbol, Description, Quantity
-* src/analytics/ — rolling beta vs SPY, correlation matrix, notional-adjusted exposure, VaR.
-* fetch 2 years of weekly returns for each ticker and SPY, compute 52-week rolling OLS beta, and output a notional-weighted portfolio beta that accounts for leveraged ETFs.
-* analysis_results - save the analysis of "52-week rolling OLS beta, and output a notional-weighted portfolio beta" into this folder in csv format
-* also print the current notional-weighted portfolio beta to terminal.
+## Project Structure
 
+```
+equity_portfolio_hedging_26/
+├── main.py                         # CLI convenience wrapper
+├── app.py                          # Desktop GUI convenience wrapper
+├── pyproject.toml                  # Package config and dependencies
+├── src/
+│   ├── cli.py                      # CLI entry point (portfolio-hedge)
+│   ├── gui.py                      # Desktop GUI entry point (portfolio-hedge-gui, tkinter)
+│   ├── config/
+│   │   └── leverage_map.yaml       # Leverage multipliers for leveraged/inverse ETFs
+│   ├── data/
+│   │   ├── loader.py               # Portfolio CSV loader (Symbol, Description, Quantity)
+│   │   └── fetcher.py              # yfinance market data fetcher
+│   └── analytics/
+│       └── beta.py                 # Rolling OLS beta and notional-weighted portfolio beta
+├── analysis_results/               # Output CSVs (rolling_beta_*, portfolio_beta_*)
+```
 
-Use pyproject.toml with dependencies: yfinance, numpy, pandas, scipy, matplotlib, plotly. Start by implementing the data layer and beta computation — I want to load a portfolio CSV (Symbol, Description, Quantity), 
+## Running the Program
 
-make it with either desktop executable and CLI executable.
+Activate the virtual environment first:
+```bash
+source /Users/marcus/coding_python/venv_quant_finance_26/bin/activate
+```
+
+Place your portfolio CSV at `src/data/portfolio.csv`, then:
+```bash
+# CLI (defaults to src/data/portfolio.csv)
+python main.py
+
+# CLI with a different file in src/data/
+python main.py my_holdings.csv
+
+# Desktop GUI
+python app.py
+```
+
+## Portfolio CSV Format
+
+File must be placed in `src/data/`. Required columns (case-insensitive, BOM-safe):
+```
+Symbol, Description, Quantity
+```
+
+## Dependencies
+
+Managed via `pyproject.toml`. Installed in venv at `/Users/marcus/coding_python/venv_quant_finance_26`.
+
+```
+yfinance, numpy, pandas, scipy, matplotlib, plotly, pyyaml
+```
+
+To reinstall:
+```bash
+pip install -e .
+```
+
+## Architecture Notes
+
+- **Data flow:** `loader.py` → `fetcher.py` → `beta.py` → saved to `analysis_results/`
+- **Beta computation:** 52-week rolling OLS regression of weekly returns vs SPY using `scipy.stats.linregress`
+- **Portfolio beta:** notional-weighted average of each position's effective beta
+- **Effective beta:** `raw_beta × leverage_multiplier` (leverage multipliers in `src/config/leverage_map.yaml`)
+- **Prices:** fetched live from yfinance at runtime — results vary while market is open due to the current incomplete weekly bar
+- **Output:** two timestamped CSVs per run saved to `analysis_results/` — `rolling_beta_*.csv` and `portfolio_beta_*.csv`
+
+## Conventions
+
+- Every function must have a docstring
+- Portfolio CSVs always read from `src/data/`
+- Leverage config lives in `src/config/leverage_map.yaml` — add new ETFs there, no code changes needed
 
 ## Project Status
 
-Early development — no source code exists yet. When adding code, build out the structure as needed and update this file with commands, architecture notes, and conventions discovered along the way.
+Data layer and beta computation implemented and tested. Currently on branch `add-optimizer-for-hedging-instruments`.
+
+Next: hedging instruments optimizer (`src/hedging/`), reporting (`src/reporting/`), and backtesting.
