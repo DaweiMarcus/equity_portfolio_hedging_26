@@ -1,0 +1,5 @@
+[console_scripts]
+portfolio-hedge = src.cli:main
+
+[gui_scripts]
+portfolio-hedge-gui = src.gui:main
