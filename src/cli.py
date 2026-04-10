@@ -5,7 +5,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from src.analytics.beta import compute_portfolio_beta, compute_rolling_beta
-from src.data.fetcher import fetch_weekly_returns
+from src.analytics.regression import (
+    compute_portfolio_regression_return,
+    compute_portfolio_regression_PnL,
+)
+from src.data.fetcher import fetch_daily_prices, fetch_weekly_returns
 from src.data.loader import load_portfolio
 
 # Portfolio CSVs are always read from this directory
@@ -74,6 +78,13 @@ def run_analysis(filename: str, start_date: datetime, end_date: datetime) -> Non
     print("=" * 52)
     print(f"\nSaved: {rolling_path}")
     print(f"Saved: {detail_path}")
+
+    # --- Daily regression: portfolio value vs SPX ---
+    print("\nFetching daily prices for portfolio regression ...")
+    daily_prices = fetch_daily_prices(tickers, start_date, end_date)
+    quantities = dict(zip(portfolio["Symbol"], portfolio["Quantity"]))
+    compute_portfolio_regression_return(daily_prices, quantities)
+    compute_portfolio_regression_PnL(daily_prices, quantities)
 
 
 def main() -> None:

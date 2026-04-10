@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 import yfinance as yf
@@ -39,3 +39,36 @@ def fetch_weekly_returns(
     latest_prices = prices.ffill().iloc[-1]
     returns = prices.pct_change().dropna()
     return returns, latest_prices
+
+
+def fetch_daily_prices(
+    tickers: list[str], start_date: datetime, end_date: datetime
+) -> pd.DataFrame:
+    """
+    Fetch daily adjusted close prices for tickers + ^GSPC (SPX) over the date range.
+
+    Args:
+        tickers:    List of portfolio ticker symbols.
+        start_date: History start date (inclusive).
+        end_date:   History end date (inclusive).
+
+    Returns:
+        DataFrame of daily adjusted close prices, columns = tickers + ^GSPC.
+    """
+    all_tickers = sorted(set(tickers) | {"^GSPC"})
+    # yfinance end is exclusive — add one day to include end_date
+    raw = yf.download(
+        all_tickers,
+        start=start_date,
+        end=end_date + timedelta(days=1),
+        interval="1d",
+        auto_adjust=True,
+        progress=False,
+    )
+
+    if isinstance(raw.columns, pd.MultiIndex):
+        prices = raw["Close"]
+    else:
+        prices = raw[["Close"]].rename(columns={"Close": all_tickers[0]})
+
+    return prices.ffill().dropna(how="all")
