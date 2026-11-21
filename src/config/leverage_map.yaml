@@ -1,0 +1,31 @@
+# Leverage multipliers for leveraged and inverse ETFs.
+# Unlisted tickers default to 1.0 (no leverage).
+
+long_3x:
+  TQQQ: 3.0
+  UPRO: 3.0
+  SPXL: 3.0
+  SOXL: 3.0
+  UDOW: 3.0
+  TNA: 3.0
+  LABU: 3.0
+
+long_2x:
+  SSO: 2.0
+  QLD: 2.0
+  USD: 2.0
+  UWM: 2.0
+
+inverse_1x:
+  SH: -1.0
+  PSQ: -1.0
+  DOG: -1.0
+
+inverse_2x:
+  SDS: -2.0
+  QID: -2.0
+
+inverse_3x:
+  SPXU: -3.0
+  SQQQ: -3.0
+  SDOW: -3.0
