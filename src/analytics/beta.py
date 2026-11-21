@@ -1,21 +1,24 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
+import yaml
 from scipy import stats
 
-# Leverage multipliers for known leveraged/inverse ETFs
-LEVERAGE_MAP: dict[str, float] = {
-    # 3x long
-    "TQQQ": 3.0, "UPRO": 3.0, "SPXL": 3.0, "SOXL": 3.0,
-    "UDOW": 3.0, "TNA": 3.0, "LABU": 3.0,
-    # 2x long
-    "SSO": 2.0, "QLD": 2.0, "USD": 2.0, "UWM": 2.0,
-    # 1x inverse
-    "SH": -1.0, "PSQ": -1.0, "DOG": -1.0,
-    # 2x inverse
-    "SDS": -2.0, "QID": -2.0,
-    # 3x inverse
-    "SPXU": -3.0, "SQQQ": -3.0, "SDOW": -3.0,
-}
+_CONFIG_PATH = Path(__file__).parent.parent / "config" / "leverage_map.yaml"
+
+
+def _load_leverage_map() -> dict[str, float]:
+    """Load and flatten the leverage map from src/config/leverage_map.yaml."""
+    with open(_CONFIG_PATH) as f:
+        data = yaml.safe_load(f)
+    result: dict[str, float] = {}
+    for group in data.values():
+        result.update(group)
+    return result
+
+
+LEVERAGE_MAP: dict[str, float] = _load_leverage_map()
 
 
 def compute_rolling_beta(returns: pd.DataFrame, window: int = 52) -> pd.DataFrame:
