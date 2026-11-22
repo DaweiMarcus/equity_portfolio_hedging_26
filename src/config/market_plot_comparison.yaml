@@ -1,0 +1,21 @@
+# Variables for market_plot_comparison (1 to 16 entries).
+#
+# ticker : any yfinance symbol (equity, index like ^GSPC, ETF, ...)
+# type   : level   - the price/level itself (default)
+#          change  - absolute difference vs. the window ago (e.g. VIX +3 pts)
+#          return  - percentage change vs. the window ago
+# window : required for change/return, not allowed for level
+#          1d, 5d, 10d = trading rows;  1m, 3m = calendar months
+# normalize : optional, default true (z-score, left axis).
+#          false = raw values on a right-hand axis, for trending variables
+#          such as an index level, where a z-score is meaningless
+# main_curve : optional, default false. true = bold line, drawn on top.
+#          Allowed on at most one variable.
+variables:
+  # - {ticker: "^GSPC", type: level, normalize: false}
+  - {ticker: "^VIX", type: level,}
+  - {ticker: "^GSPC", type: return, window: 5d}
+  - {ticker: "^GSPC", type: return, window: 1m,  main_curve: true}
+  - {ticker: "^GSPC", type: level, normalize: false}
+  # - {ticker: "NVDA", type: return, window: 1m}
+  # - {ticker: "^TNX", type: change, window: 10d}

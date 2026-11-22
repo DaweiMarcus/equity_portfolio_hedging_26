@@ -12,12 +12,16 @@ Analyze characteristics and risks of an equity portfolio, and test potential hed
 equity_portfolio_hedging_26/
 ├── main.py                         # CLI convenience wrapper
 ├── app.py                          # Desktop GUI convenience wrapper
+├── market_plot_comparison.py       # Wrapper for the standalone market comparison tool
 ├── pyproject.toml                  # Package config and dependencies
 ├── src/
 │   ├── cli.py                      # CLI entry point (portfolio-hedge)
 │   ├── gui.py                      # Desktop GUI entry point (portfolio-hedge-gui, tkinter)
+│   ├── tools/
+│   │   └── market_plot_comparison.py  # Standalone: 1-16 tickers, level/change/return, z-scored plotly chart; `normalize: false` plots raw values on a right-hand axis
 │   ├── config/
-│   │   └── leverage_map.yaml       # Leverage multipliers for leveraged/inverse ETFs
+│   │   ├── leverage_map.yaml       # Leverage multipliers for leveraged/inverse ETFs
+│   │   └── market_plot_comparison.yaml  # Variables (ticker/type/window) for the comparison tool
 │   ├── data/
 │   │   ├── loader.py               # Portfolio CSV loader (Symbol, Description, Quantity)
 │   │   └── fetcher.py              # yfinance market data fetcher (weekly + daily)
